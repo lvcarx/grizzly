@@ -1,12 +1,12 @@
 import grizzly
+import numpy
 from grizzly.relationaldbexecutor import RelationalExecutor
-from grizzly.udfcompiler.test_udfs import Test_funcs
 
-import sqlite3
-import cx_Oracle
-import psycopg2
+def myfunc(a: int) -> str:
+      return a+"_grizzly"
 
 con = sqlite3.connect("grizzly.db")
+
 
 grizzly.use(RelationalExecutor(con))
 
@@ -14,6 +14,12 @@ df = grizzly.read_table("events")
 
 df = df[df["globaleventid"] == 470747760] # filter
 df = df[["actor1name","actor2name"]]
+
+
+#df["newid"] = df["globaleventid"].map(myfunc)
+numpydf = df.to_numpy()
+
+
 
 df.show(pretty=True)
 
@@ -63,6 +69,7 @@ df = df[["test_id", "test_text", "test_float", "test_number"]]
 df["udf"] = df[["test_number", "test_float"]].map(func, lang='sql', fallback=True)
 
 df = df[df['udf'] > 1000]
+
 
 # Pandas fallback only implemented for df.show()
 print(df.generateQuery())
